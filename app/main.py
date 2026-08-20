@@ -16,3 +16,7 @@ Base.metadata.create_all(bind=engine)
 @app.get("/")
 def root():
     return {"message": "Research Group Management API"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
