@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # --- Cấu hình ứng dụng ---
-    APP_DESCRIPTION: str = "Ứng dụng mẫu Authentication & Authorization với FastAPI."
+    APP_DESCRIPTION: str = "API quản lí nhóm nghiên cứu."
     DATABASE_URL: str
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
