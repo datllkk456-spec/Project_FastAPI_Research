@@ -4,6 +4,8 @@ from app.db.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from app.core.security import hash_password
+from app.schemas.user import UserLogin
+from app.core.security import verify_password, create_access_token
 
 router = APIRouter(
     prefix="/auth",
@@ -36,3 +38,42 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.refresh(user)
 
     return user
+
+
+@router.post("/login")
+def login(
+    user_data: UserLogin,
+    db: Session = Depends(get_db)
+):
+    # Tìm user theo email
+    user = db.query(User).filter(
+        User.email == user_data.email
+    ).first()
+
+    # Kiểm tra user và mật khẩu
+    if user is None or not verify_password(
+        user_data.password,
+        user.hashed_password
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Email hoặc mật khẩu không đúng"
+        )
+
+    # Kiểm tra tài khoản có đang hoạt động không
+    if not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="Tài khoản không hoạt động"
+        )
+
+    # Tạo access token
+    access_token = create_access_token({
+        "sub": str(user.id),
+        "email": user.email
+    })
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
