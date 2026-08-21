@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from fastapi import FastAPI
 from app.db.database import Base, engine
 from app.models.user import User
 from app.models.role import Role
