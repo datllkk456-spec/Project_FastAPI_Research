@@ -59,3 +59,29 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     # Trả về đối tượng người dùng hoàn chỉnh cho endpoint kế tiếp
     return user
 
+class RoleChecker:
+    """
+    Class Dependency dùng để phân quyền theo vai trò (Role-Based Access Control).
+    Nhận vào một danh sách các role được phép truy cập.
+
+    Cách dùng trong endpoint:
+        Depends(RoleChecker(["admin"]))           # Chỉ admin
+        Depends(RoleChecker(["admin", "manager"])) # Admin hoặc Manager
+    """
+
+    def __init__(self, allowed_roles: list[str]):
+        # Lưu lại danh sách role được phép khi khởi tạo
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, current_user: User = Depends(get_current_user)):
+        # Lấy tên role từ relationship object (user.role là object Role)
+        user_role_name = current_user.role.name if current_user.role else None
+
+        # Kiểm tra role của user có nằm trong danh sách được phép không
+        if user_role_name not in self.allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Quyền truy cập bị từ chối! Yêu cầu một trong các quyền: {self.allowed_roles}"
+            )
+        return current_user
+
