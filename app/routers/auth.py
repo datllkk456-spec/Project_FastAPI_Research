@@ -41,20 +41,12 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(
-    user_data: UserLogin,
-    db: Session = Depends(get_db)
-):
+def login(user_data: UserLogin, db: Session = Depends(get_db)):
     # Tìm user theo email
-    user = db.query(User).filter(
-        User.email == user_data.email
-    ).first()
+    user = db.query(User).filter(User.email == user_data.email).first()
 
     # Kiểm tra user và mật khẩu
-    if user is None or not verify_password(
-        user_data.password,
-        user.hashed_password
-    ):
+    if user is None or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(
             status_code=401,
             detail="Email hoặc mật khẩu không đúng"
@@ -67,13 +59,21 @@ def login(
             detail="Tài khoản không hoạt động"
         )
 
-    # Tạo access token
-    access_token = create_access_token({
-        "sub": str(user.id),
-        "email": user.email
-    })
+    # Lấy tên role từ object relationship (user.role là object Role, user.role.name là chuỗi)
+    role_name = user.role.name if user.role else None
+
+    # Tạo JWT Access Token, nhét role_name vào payload để dùng cho Authorization
+    access_token = create_access_token(data={"sub": user.email, "id": user.id, "role": role_name})
 
     return {
+        "message": "Đăng nhập thành công",
         "access_token": access_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "data": {
+            "id": user.id,
+            "email": user.email,
+            "role": role_name,
+            "is_active": user.is_active,
+            "created_at": user.created_at
+        }
     }
