@@ -2,19 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
-from app.core.security import hash_password
-from app.schemas.user import UserLogin
-from app.core.security import verify_password, create_access_token
+from app.models.role import Role
+from app.schemas.user import UserCreate, UserResponse, UserLogin
+from app.core.security import hash_password, verify_password, create_access_token
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
 
+# task: Authentication - Register
 @router.post("/register", response_model=UserResponse)
 def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    # Kiểm tra email đã tồn tại
     existing_user = db.query(User).filter(User.email == user_data.email).first()
 
     if existing_user:
@@ -23,13 +22,16 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Email đã tồn tại"
         )
 
-    # Hash password
+    # task: Authentication - Password
     hashed_password = hash_password(user_data.password)
 
-    # Tạo user
+    default_role = db.query(Role).filter(Role.name == "USER").first()
+
     user = User(
         email=user_data.email,
+        full_name=user_data.full_name,
         hashed_password=hashed_password,
+        role_id=default_role.id if default_role else None,
         is_active=True
     )
 
@@ -40,29 +42,24 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
+# task: Authentication - Login
 @router.post("/login")
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
-    # Tìm user theo email
     user = db.query(User).filter(User.email == user_data.email).first()
 
-    # Kiểm tra user và mật khẩu
     if user is None or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(
             status_code=401,
             detail="Email hoặc mật khẩu không đúng"
         )
 
-    # Kiểm tra tài khoản có đang hoạt động không
     if not user.is_active:
         raise HTTPException(
             status_code=403,
             detail="Tài khoản không hoạt động"
         )
 
-    # Lấy tên role từ object relationship (user.role là object Role, user.role.name là chuỗi)
     role_name = user.role.name if user.role else None
-
-    # Tạo JWT Access Token, nhét role_name vào payload để dùng cho Authorization
     access_token = create_access_token(data={"sub": user.email, "id": user.id, "role": role_name})
 
     return {
