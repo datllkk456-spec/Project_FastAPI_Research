@@ -14,11 +14,12 @@ class ResearchProject(Base):
     # Khóa ngoại: Người sở hữu project
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    # Quan hệ: Project thuộc về một User
+    # Quan hệ 1-N: Một User có thể sở hữu nhiều Project
     owner = relationship("User", back_populates="owned_projects")
 
-    # Quan hệ: Một Project có nhiều Member
+    # Quan hệ 1-N: Một Project có nhiều Member
     members = relationship("ResearchMember", back_populates="project")
 
-    # Quan hệ: Một Project có nhiều Task
+    # Quan hệ 1-N: Một Project có nhiều Task
     tasks = relationship("ResearchTask", back_populates="project")
+    

@@ -19,8 +19,8 @@ class ResearchTask(Base):
     due_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
-    # Quan hệ với ResearchProject
+    # 1-N: 1 project có nhiều task
     project = relationship("ResearchProject", back_populates="tasks")
 
-    # Quan hệ với User được giao task
+    # 1-N: 
     assignee = relationship("User", back_populates="assigned_tasks")

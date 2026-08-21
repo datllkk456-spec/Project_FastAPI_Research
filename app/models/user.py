@@ -17,18 +17,14 @@ class User(Base):
     # Khóa ngoại: Liên kết tới bảng roles
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
 
-    # Quan hệ với Role
+    # 1-N: User có 1 role
     role = relationship("Role", back_populates="users")
 
-    # Quan hệ: User sở hữu nhiều ResearchProject
-    owned_projects = relationship(
-        "ResearchProject",
-        back_populates="owner"
-    )
+    # 1-N: User sở hữu nhiều ResearchProject
+    owned_projects = relationship("ResearchProject", back_populates="owner")
 
-    # Quan hệ: User tham gia nhiều ResearchProject
-    # thông qua bảng ResearchMember
+    # 1-N: User tham gia nhiều ResearchProject
     memberships = relationship("ResearchMember", back_populates="user")
 
-    # Quan hệ: User có thể được giao nhiều ResearchTask
+    # 1-N: User có thể được giao nhiều ResearchTask
     assigned_tasks = relationship("ResearchTask", back_populates="assignee")
