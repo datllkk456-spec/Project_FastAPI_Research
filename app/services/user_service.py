@@ -51,13 +51,12 @@ def authenticate_user(db: Session, user_data: UserLogin) -> User:
             detail="Email hoặc mật khẩu không đúng"
         )
 
-    # Kiểm tra tài khoản có hoạt động không
+    # Ktra tài khoản có hoạt động ko
     if not user.is_active:
         raise HTTPException(
             status_code=403,
             detail="Tài khoản không hoạt động"
         )
-
     return user
 
 # task 7 buổi 2: GET /users: chỉ Admin; có search theo tên/email và trạng thái.

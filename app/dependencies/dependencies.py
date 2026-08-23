@@ -9,7 +9,7 @@ from app.core.config import settings
 # Sử dụng HTTPBearer để lấy token từ header
 security = HTTPBearer()
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)) -> User:
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)) -> User:
     """
     Dependency cốt lõi: Giải mã JWT từ Header, kiểm tra tính toàn vẹn,
     và truy vấn thông tin User từ cơ sở dữ liệu.
@@ -52,7 +52,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     # Bước 3: Kiểm tra xem tài khoản có đang bị khóa hay không
     if not user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Tài khoản này đã bị tạm khóa!"
         )
 
