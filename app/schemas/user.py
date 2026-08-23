@@ -24,7 +24,7 @@ class UserUpdate(BaseModel):
 # Response
 class UserResponse(UserBase):
     id: int
-    role_id: int | None = None
+    role_id: int
     is_active: bool
     created_at: datetime
 
