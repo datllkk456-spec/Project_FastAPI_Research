@@ -19,16 +19,13 @@ require_admin = RoleChecker(["ADMIN"])
 @router.get("/me", response_model=UserResponse)
 def get_my_profile(current_user: User = Depends(get_current_user)):
     # return current_user
-     return {
-        "message": "Lấy thông tin thành công!",
-        "user_info": {
-            "id": current_user.id,
-            "email": current_user.email,
-            "full_name": current_user.full_name,
-            "role": current_user.role.name if current_user.role else None,
-            "is_active": current_user.is_active,
-            "created_at": current_user.created_at
-        }
+    return { 
+        "id": current_user.id,
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "role_id": current_user.role_id,
+        "is_active": current_user.is_active,
+        "created_at": current_user.created_at
     }
 
 # task: User - Danh sách user

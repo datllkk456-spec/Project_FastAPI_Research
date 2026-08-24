@@ -10,13 +10,9 @@ from app.core.config import settings
 security = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)) -> User:
-    """
-    Dependency cốt lõi: Giải mã JWT từ Header, kiểm tra tính toàn vẹn,
-    và truy vấn thông tin User từ cơ sở dữ liệu.
-    """
     # Tự động lấy chuỗi Token nguyên bản
     token = credentials.credentials
-
+    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Không thể xác thực thông tin đăng nhập!",
@@ -60,15 +56,6 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     return user
 
 class RoleChecker:
-    """
-    Class Dependency dùng để phân quyền theo vai trò (Role-Based Access Control).
-    Nhận vào một danh sách các role được phép truy cập.
-
-    Cách dùng trong endpoint:
-        Depends(RoleChecker(["admin"]))           # Chỉ admin
-        Depends(RoleChecker(["admin", "manager"])) # Admin hoặc Manager
-    """
-
     def __init__(self, allowed_roles: list[str]):
         # Lưu lại danh sách role được phép khi khởi tạo
         self.allowed_roles = allowed_roles
@@ -84,4 +71,3 @@ class RoleChecker:
                 detail=f"Quyền truy cập bị từ chối! Yêu cầu một trong các quyền: {self.allowed_roles}"
             )
         return current_user
-

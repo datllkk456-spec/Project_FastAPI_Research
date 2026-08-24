@@ -22,5 +22,5 @@ class ResearchTask(Base):
     # 1-N: 1 project có nhiều task
     project = relationship("ResearchProject", back_populates="tasks")
 
-    # 1-N: 
+    # 1-N: 1 user có thể được giao nhiều task
     assignee = relationship("User", back_populates="assigned_tasks")

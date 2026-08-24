@@ -10,6 +10,7 @@ class ResearchMember(Base):
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     role = Column(String(20), nullable=False)
     joined_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    
+
+    # N-N: Project và User có quan hệ nhiều-nhiều thông qua Membership
     project = relationship("ResearchProject", back_populates="members")
     user = relationship("User", back_populates="memberships")
