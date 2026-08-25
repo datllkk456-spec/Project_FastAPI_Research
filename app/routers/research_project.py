@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
@@ -17,4 +17,13 @@ def create_project(project_data: ResearchProjectCreate, db: Session = Depends(ge
         db=db,
         project_data=project_data,
         current_user=current_user
+    )
+
+
+@router.get("/", response_model=list[ResearchProjectResponse])
+def get_research_projects(search: str | None = Query(None, description="Tìm kiếm theo tên đề tài"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return project_services.get_my_projects(
+        db=db,
+        current_user=current_user,
+        search=search
     )

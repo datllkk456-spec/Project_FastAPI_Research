@@ -22,7 +22,9 @@ register_exception_handlers(app)
 Base.metadata.create_all(bind=engine)
 
 app.include_router(router)
+# task 6+7 buổi 2
 app.include_router(users.router)
+# task buổi 3
 app.include_router(research_project.router)
 
 @app.get("/")

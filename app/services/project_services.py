@@ -5,7 +5,6 @@ from app.models.research_project import ResearchProject
 from app.models.research_member import ResearchMember
 
 # logic nghiệp vụ của ResearchProject
-
 def create_project(db: Session, project_data: ResearchProjectCreate, current_user: User):
     # tạo project
     project = ResearchProject(
@@ -28,3 +27,11 @@ def create_project(db: Session, project_data: ResearchProjectCreate, current_use
     db.refresh(project)
 
     return project
+
+def get_my_projects(db: Session, current_user: User, search: str | None = None):
+    query = (db.query(ResearchProject).join(ResearchMember, ResearchMember.project_id == ResearchProject.id).filter(ResearchMember.user_id == current_user.id))
+
+    if search:
+        query = query.filter(ResearchProject.name.ilike(f"%{search}%"))
+
+    return query.all()
