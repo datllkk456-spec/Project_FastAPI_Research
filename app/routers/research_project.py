@@ -65,3 +65,13 @@ def add_member(project_id: int, member_data: ResearchMemberCreate, db: Session =
         member_data=member_data,
         current_user=current_user
     )
+
+# owner xóa thành viên
+@router.delete("/{project_id}/members/{user_id}")
+def remove_member(project_id: int, user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return project_services.remove_member(
+        db=db,
+        project_id=project_id,
+        user_id=user_id,
+        current_user=current_user
+    )

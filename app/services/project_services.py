@@ -30,6 +30,7 @@ def create_project(db: Session, project_data: ResearchProjectCreate, current_use
 
     return project
 
+
 def get_my_projects(db: Session, current_user: User, search: str | None = None):
     query = (db.query(ResearchProject).join(ResearchMember, ResearchMember.project_id == ResearchProject.id).filter(ResearchMember.user_id == current_user.id))
 
@@ -37,6 +38,7 @@ def get_my_projects(db: Session, current_user: User, search: str | None = None):
         query = query.filter(ResearchProject.name.ilike(f"%{search}%"))
 
     return query.all()
+
 
 # Chi tiết đề tài nghiên cứu
 def get_project_detail(db: Session, project_id: int, current_user: User):
@@ -57,6 +59,7 @@ def get_project_detail(db: Session, project_id: int, current_user: User):
         )
 
     return project
+
 
 # Owner mới được phép sửa dự án. Member chỉ được xem, không được sửa.
 def update_project(db: Session, project_id: int, project_data: ResearchProjectUpdate, current_user: User):
@@ -91,6 +94,7 @@ def update_project(db: Session, project_id: int, project_data: ResearchProjectUp
 
     return project
 
+
 # Owner mới được phép xóa đề tài. Member chỉ được xem, không được xóa.
 def delete_project(db: Session, project_id: int, current_user: User):
     project = (
@@ -119,6 +123,7 @@ def delete_project(db: Session, project_id: int, current_user: User):
     return {
         "message": "Xóa đề tài thành công"
     }
+
 
 def add_member(db: Session, project_id: int, member_data: ResearchMemberCreate, current_user: User):
     # Kiểm tra người đang thực hiện có phải OWNER không
@@ -179,3 +184,58 @@ def add_member(db: Session, project_id: int, member_data: ResearchMemberCreate, 
     db.refresh(new_member)
 
     return new_member
+
+
+def remove_member(
+    db: Session,
+    project_id: int,
+    user_id: int,
+    current_user: User
+):
+    # Kiểm tra người thực hiện có phải OWNER không
+    owner = (
+        db.query(ResearchMember)
+        .filter(
+            ResearchMember.project_id == project_id,
+            ResearchMember.user_id == current_user.id,
+            ResearchMember.role == "OWNER"
+        )
+        .first()
+    )
+
+    if not owner:
+        raise HTTPException(
+            status_code=403,
+            detail="Chỉ OWNER mới được xóa thành viên"
+        )
+
+    # Tìm member cần xóa
+    member = (
+        db.query(ResearchMember)
+        .filter(
+            ResearchMember.project_id == project_id,
+            ResearchMember.user_id == user_id
+        )
+        .first()
+    )
+
+    if not member:
+        raise HTTPException(
+            status_code=404,
+            detail="User không phải thành viên của đề tài"
+        )
+
+    # Không cho xóa OWNER
+    if member.role == "OWNER":
+        raise HTTPException(
+            status_code=400,
+            detail="Không thể xóa OWNER"
+        )
+
+    # Xóa member
+    db.delete(member)
+    db.commit()
+
+    return {
+        "message": "Xóa thành viên thành công"
+    }
