@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
 from app.dependencies.dependencies import get_current_user
-from app.schemas.research_project import ResearchProjectResponse, ResearchProjectCreate
+from app.schemas.research_project import ResearchProjectResponse, ResearchProjectCreate, ResearchProjectUpdate
 from app.services import project_services
 
 router = APIRouter(
@@ -30,6 +30,23 @@ def get_research_projects(search: str | None = Query(None, description="TÃ¬m kiá
 @router.get("/{project_id}", response_model=ResearchProjectResponse)
 def get_research_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return project_services.get_project_detail(
+        db=db,
+        project_id=project_id,
+        current_user=current_user
+    )
+
+@router.put("/{project_id}", response_model=ResearchProjectResponse)
+def update_research_project(project_id: int, project_data: ResearchProjectUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return project_services.update_project(
+        db=db,
+        project_id=project_id,
+        project_data=project_data,
+        current_user=current_user
+    )
+
+@router.delete("/{project_id}")
+def delete_research_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return project_services.delete_project(
         db=db,
         project_id=project_id,
         current_user=current_user
