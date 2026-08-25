@@ -9,7 +9,7 @@ class ResearchMemberBase(BaseModel):
 
 # Dữ liệu khi thêm thành viên
 class ResearchMemberCreate(ResearchMemberBase):
-    pass
+    user_id: int
 
 # Dữ liệu khi cập nhật thành viên
 class ResearchMemberUpdate(BaseModel):
