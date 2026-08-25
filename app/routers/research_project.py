@@ -27,10 +27,7 @@ def get_research_projects(search: str | None = Query(None, description="TÃ¬m kiá
         search=search
     )
 
-@router.get(
-    "/{project_id}",
-    response_model=ResearchProjectResponse
-)
+@router.get("/{project_id}", response_model=ResearchProjectResponse)
 def get_research_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return project_services.get_project_detail(
         db=db,
