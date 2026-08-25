@@ -19,11 +19,21 @@ def create_project(project_data: ResearchProjectCreate, db: Session = Depends(ge
         current_user=current_user
     )
 
-
 @router.get("/", response_model=list[ResearchProjectResponse])
 def get_research_projects(search: str | None = Query(None, description="Tìm kiếm theo tên đề tài"), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return project_services.get_my_projects(
         db=db,
         current_user=current_user,
         search=search
+    )
+
+@router.get(
+    "/{project_id}",
+    response_model=ResearchProjectResponse
+)
+def get_research_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return project_services.get_project_detail(
+        db=db,
+        project_id=project_id,
+        current_user=current_user
     )

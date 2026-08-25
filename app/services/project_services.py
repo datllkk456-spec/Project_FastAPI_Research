@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from app.schemas.research_project import ResearchProjectCreate
 from app.models.user import User
@@ -35,3 +36,23 @@ def get_my_projects(db: Session, current_user: User, search: str | None = None):
         query = query.filter(ResearchProject.name.ilike(f"%{search}%"))
 
     return query.all()
+
+# Chi tiết đề tài nghiên cứu
+def get_project_detail(db: Session, project_id: int, current_user: User):
+    project = (
+        db.query(ResearchProject).join(
+            ResearchMember,
+            ResearchMember.project_id == ResearchProject.id
+        ).filter(
+            ResearchProject.id == project_id,
+            ResearchMember.user_id == current_user.id
+        ).first()
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=403,
+            detail="Bạn không phải thành viên của dự án này"
+        )
+
+    return project
